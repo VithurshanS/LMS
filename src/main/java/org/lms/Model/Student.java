@@ -1,5 +1,6 @@
 package org.lms.Model;
 
+import java.util.List;
 import java.util.UUID;
 
 import jakarta.persistence.*;
@@ -15,9 +16,12 @@ public class Student {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(cascade=CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "department_id")
     private Department department;
+
+    @OneToMany(mappedBy="student")
+    private List<Enrollment> studentEnrollments;
 
     public UUID getId() {
         return id;

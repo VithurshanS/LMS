@@ -1,5 +1,6 @@
 package org.lms.Model;
 
+import java.util.List;
 import java.util.UUID;
 
 import jakarta.persistence.*;
@@ -30,6 +31,11 @@ public class Module {
     @ManyToOne
     @JoinColumn(name="admin_id")
     private Admin createdby;
+
+    @OneToMany(mappedBy="module")
+    private List<Enrollment> moduleEnrollments;
+
+
 
 
 
