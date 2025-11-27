@@ -39,6 +39,14 @@ public class Module {
 
 
 
+    public List<Enrollment> getModuleEnrollments() {
+        return moduleEnrollments;
+    }
+
+    public void setModuleEnrollments(List<Enrollment> moduleEnrollments) {
+        this.moduleEnrollments = moduleEnrollments;
+    }
+
     public Admin getCreatedby() {
         return createdby;
     }

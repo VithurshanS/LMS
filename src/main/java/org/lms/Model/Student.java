@@ -23,6 +23,24 @@ public class Student {
     @OneToMany(mappedBy="student")
     private List<Enrollment> studentEnrollments;
 
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public void setDepartment(Department department) {
+        this.department = department;
+    }
+
+    public List<Enrollment> getStudentEnrollments() {
+        return studentEnrollments;
+    }
+
+    public void setStudentEnrollments(List<Enrollment> studentEnrollments) {
+        this.studentEnrollments = studentEnrollments;
+    }
+
+
+
     public UUID getId() {
         return id;
     }
