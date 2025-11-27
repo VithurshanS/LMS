@@ -22,8 +22,7 @@ public class GreetingResource {
     @Produces(MediaType.TEXT_PLAIN)
     @Transactional
     public String hello() {
-        Department dept = new Department();
-        dept.setName("Human Resour");
+        Department dept = new Department("Computer Science");
         departmentRepository.persist(dept);
         return "Hello from Quarkus REST";
 

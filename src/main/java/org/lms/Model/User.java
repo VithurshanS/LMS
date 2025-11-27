@@ -13,15 +13,30 @@ public class User {
     @GeneratedValue
     @Column(name = "user_id")
     private UUID id;
+
+    @Column(nullable=false)
     private String name;
+    @Column(nullable=false)
     private String email;
+
+    @Column(nullable=false)
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
     @Column(unique = true, nullable= false)
     private String username;
     @Column(nullable = false)
     private String password;
 
+    public User (){}
+    
+    public User(String name, String email, UserRole role, String username, String password) {
+        this.name = name;
+        this.email = email;
+        this.role = role;
+        this.username = username;
+        this.password = password;
+    }
 
     public void setName(String name) {
         this.name = name;

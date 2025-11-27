@@ -12,7 +12,14 @@ public class Department {
     @Column(name = "department_id")
     private UUID id;
 
+    @Column(nullable=false)
     private String name;
+
+    public Department() {}
+
+    public Department(String name){
+        this.name = name;
+    }
 
     public void setName(String name) {
         this.name = name;
@@ -25,8 +32,4 @@ public class Department {
     public String getName() {
         return name;
     }
-
-
-
-    
 }

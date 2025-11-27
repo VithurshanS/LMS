@@ -20,6 +20,17 @@ public class Enrollment {
     @JoinColumn(name="module_id")
     private Module module;
 
+    public Enrollment (){}
+
+    
+
+    public Enrollment(Student student, Module module) {
+        this.student = student;
+        this.module = module;
+    }
+
+
+
     public UUID getId() {
         return id;
     }

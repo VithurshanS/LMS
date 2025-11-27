@@ -20,8 +20,19 @@ public class Admin {
     @OneToMany(mappedBy="createdby")
     private List<Module> createdModules;
 
+    public Admin() {}
+
+    public Admin(User user) {
+        if (user != null && user.getRole() != UserRole.ADMIN) {
+            throw new IllegalArgumentException("User is not a admin");
+        }
+        this.user = user;
+    }
 
     public void setUser(User user) {
+        if (user != null && user.getRole() != UserRole.ADMIN) {
+            throw new IllegalArgumentException("User is not a admin");
+        }
         this.user = user;
     }
 
@@ -40,6 +51,5 @@ public class Admin {
     public User getUser() {
         return user;
     }
-
 
 }

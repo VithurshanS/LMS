@@ -24,8 +24,21 @@ public class Lecturer {
     @OneToMany(mappedBy="lecturer")
     private List<Module> teachingModules;
 
+    
+    public Lecturer (){}
+
+    public Lecturer(User user, Department department) {
+        if (user != null && user.getRole() != UserRole.LECTURER) {
+            throw new IllegalArgumentException("User is not a lecturerr");
+        }
+        this.user = user;
+        this.department = department;
+    }
 
     public void setUser(User user) {
+        if (user != null && user.getRole() != UserRole.LECTURER) {
+            throw new IllegalArgumentException("User is not a lecturer");
+        }
         this.user = user;
     }
 
@@ -53,6 +66,4 @@ public class Lecturer {
         return department;
     }
 
-
-    
 }

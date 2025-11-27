@@ -24,7 +24,20 @@ public class Student {
     @OneToMany(mappedBy="student")
     private List<Enrollment> studentEnrollments;
 
+    public Student() {}
+
+    public Student(User user, Department department) {
+        if (user != null && user.getRole() != UserRole.STUDENT) {
+            throw new IllegalArgumentException("User is not a student");
+        }
+        this.user = user;
+        this.department = department;
+    }
+
     public void setUser(User user) {
+        if (user != null && user.getRole() != UserRole.STUDENT) {
+            throw new IllegalArgumentException("User is not a student");
+        }
         this.user = user;
     }
 
@@ -40,8 +53,6 @@ public class Student {
         this.studentEnrollments = studentEnrollments;
     }
 
-
-
     public UUID getId() {
         return id;
     }
@@ -53,6 +64,4 @@ public class Student {
     public Department getDepartment() {
         return department;
     }
-
-    
 }

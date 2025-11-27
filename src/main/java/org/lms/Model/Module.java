@@ -36,9 +36,20 @@ public class Module {
     @OneToMany(mappedBy="module")
     private List<Enrollment> moduleEnrollments;
 
+    
 
 
+    public Module (){}
 
+
+    public Module(String module_code, String name, int enrollmentLimit, Department department, Lecturer lecturer, Admin createdby) {
+        this.module_code = module_code;
+        this.name = name;
+        this.enrollmentLimit = enrollmentLimit;
+        this.department = department;
+        this.lecturer = lecturer;
+        this.createdby = createdby;
+    }
 
     public List<Enrollment> getModuleEnrollments() {
         return moduleEnrollments;

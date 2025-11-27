@@ -2,11 +2,11 @@ package org.lms.Repository;
 
 import java.util.UUID;
 
-import org.lms.Model.Department;
+import org.lms.Model.Student;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
-public class DepartmentRepository implements PanacheRepositoryBase<Department, UUID> {  
+public class StudentRepository implements PanacheRepositoryBase<Student, UUID> {   
 }
