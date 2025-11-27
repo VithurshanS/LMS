@@ -10,14 +10,15 @@ public class Lecturer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "lecturer_id")
     private UUID id;
 
     @OneToOne(cascade= CascadeType.ALL)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "id")
     private User user;
 
     @ManyToOne(cascade=CascadeType.ALL)
-    @JoinColumn(name = "department_id")
+    @JoinColumn(name = "id")
     private Department department;
 
     @OneToMany(mappedBy="lecturer")

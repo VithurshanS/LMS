@@ -11,6 +11,7 @@ public class Module {
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @Column(name="module_id")
     private UUID id;
 
     @Column(unique=true,name="modulecode")

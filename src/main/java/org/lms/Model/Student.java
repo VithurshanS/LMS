@@ -10,6 +10,7 @@ import jakarta.persistence.*;
 public class Student {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "student_id")
     private UUID id;
 
     @OneToOne(cascade= CascadeType.ALL)

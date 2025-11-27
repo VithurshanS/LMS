@@ -9,6 +9,7 @@ import jakarta.persistence.*;
 public class Enrollment {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @Column(name = "enrollment_id")
     private UUID id;
 
     @ManyToOne

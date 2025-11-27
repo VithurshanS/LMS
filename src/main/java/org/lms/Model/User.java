@@ -11,6 +11,7 @@ import jakarta.persistence.*;
 public class User {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private UUID id;
     private String name;
     private String email;
