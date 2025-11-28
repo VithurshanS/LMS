@@ -89,16 +89,10 @@ public class LecturerTest {
     @Transactional
     public void listAllModulesOfLecturer(){
         Lecturer lecturer1 = TestHelper.createLecturer(lecturerRepository, userRepository,departmentRepository, "lecturer2","Mathematics");
-        
-        // Now use the fixed TestHelper.createModule - it will find the existing lecturer
         Module module1 = TestHelper.createModule(moduleRepository, lecturerRepository, departmentRepository, userRepository, adminRepository, "CS100", "Data Structure", 50, "lecturer2", "Mathematics", "admin123");
         Module module2 = TestHelper.createModule(moduleRepository, lecturerRepository, departmentRepository, userRepository, adminRepository, "CS101", "Linear Algebra", 50, "lecturer2", "Mathematics", "admin123");
-
-        // Clear persistence context and reload to get fresh @OneToMany relationship
         
         lecturer1 = lecturerRepository.findById(lecturer1.getId());
-        
-        // Now @OneToMany will automatically query and populate the list
         List<Module> teachingModules = lecturer1.getTeachingModules();
         
         assert teachingModules != null : "Teaching modules should not be null";
