@@ -69,10 +69,10 @@ public class DepartmentTest {
     @Test
     @Transactional
     public void getLecturelist(){
-        Department dept = TestHelper.createDepartment(departmentRepository,"Computer Sciences");
-        Lecturer st1 = TestHelper.createLecturer(lecturerRepository, userRepository, departmentRepository, "lecturer1", "Computer Sciences");
-        Lecturer st2 = TestHelper.createLecturer(lecturerRepository, userRepository, departmentRepository, "lecturer2", "Computer Sciences");
-        Lecturer st3 = TestHelper.createLecturer(lecturerRepository, userRepository, departmentRepository, "lecturer3", "Computer Sciences");
+        Department dept = TestHelper.createDepartment(departmentRepository,"Computer Sciencess");
+        Lecturer st1 = TestHelper.createLecturer(lecturerRepository, userRepository, departmentRepository, "lecturerr1", "Computer Sciencess");
+        Lecturer st2 = TestHelper.createLecturer(lecturerRepository, userRepository, departmentRepository, "lecturerr2", "Computer Sciencess");
+        Lecturer st3 = TestHelper.createLecturer(lecturerRepository, userRepository, departmentRepository, "lecturerr3", "Computer Sciencess");
 
         departmentRepository.getEntityManager().clear();
         Department dept_fetched = departmentRepository.findById(dept.getId());
