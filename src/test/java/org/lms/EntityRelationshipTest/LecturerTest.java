@@ -30,20 +30,12 @@ public class LecturerTest {
     DepartmentRepository departmentRepository;
 
 
-    @BeforeAll
-    @Transactional
-    public void setup() {
-        TestHelper.setupSampleUsers(userRepository);
-        TestHelper.setupSampleDepartments(departmentRepository);
-    }
 
     @Test
     @Transactional
     public void createLecturerTestvalid(){
-        User foundLecturerUser = userRepository.find("username", "lecturer123").firstResult();
-        Department foundCsDept = departmentRepository.find("name", "Computer Science").firstResult();
         
-        Lecturer lecturer1 = new Lecturer(foundLecturerUser, foundCsDept);
+        Lecturer lecturer1 = TestHelper.createLecturer(lecturerRepository, userRepository,departmentRepository, "lecturer","Computer Science");
         lecturerRepository.persist(lecturer1);
         lecturerRepository.flush();
         
@@ -54,7 +46,7 @@ public class LecturerTest {
     @Test
     @Transactional
     public void createLecturerWithWrongRole(){
-        User foundStudentUser = userRepository.find("username", "student123").firstResult();
+        User foundStudentUser = TestHelper.createStudentUser(userRepository, "student123","student123@lms.com");
         Department foundCsDept = departmentRepository.find("name", "Computer Science").firstResult();
   
         
@@ -69,7 +61,7 @@ public class LecturerTest {
     @Test
     @Transactional
     public void createLecturerWithWrongRole2(){
-        User foundAdminUser = userRepository.find("username", "admin123").firstResult();
+        User foundAdminUser = TestHelper.createAdminUser(userRepository, "admin123","admin123@lms.com");
         Department foundCsDept = departmentRepository.find("name", "Computer Science").firstResult();
   
         
