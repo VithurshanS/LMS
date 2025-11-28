@@ -1,19 +1,22 @@
 package org.lms.EntityRelationshipTest;
 
-import org.junit.jupiter.api.BeforeAll;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.lms.Model.Department;
 import org.lms.Model.Lecturer;
+import org.lms.Model.Module;
 import org.lms.Model.User;
-import org.lms.Model.UserRole;
+import org.lms.Repository.AdminRepository;
 import org.lms.Repository.DepartmentRepository;
+import org.lms.Repository.EnrollmentRepository;
 import org.lms.Repository.LecturerRepository;
+import org.lms.Repository.ModuleRepository;
 import org.lms.Repository.UserRepository;
 
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
-
 import jakarta.transaction.Transactional;
 
 @QuarkusTest
@@ -28,6 +31,15 @@ public class LecturerTest {
 
     @Inject
     DepartmentRepository departmentRepository;
+
+    @Inject
+    ModuleRepository moduleRepository;
+
+    @Inject
+    AdminRepository adminRepository;
+
+    @Inject
+    EnrollmentRepository enrollmentRepository;
 
 
 
@@ -72,4 +84,25 @@ public class LecturerTest {
             assert true;
         }
     }
+
+    @Test
+    @Transactional
+    public void listAllModulesOfLecturer(){
+        Lecturer lecturer1 = TestHelper.createLecturer(lecturerRepository, userRepository,departmentRepository, "lecturer2","Mathematics");
+        
+        // Now use the fixed TestHelper.createModule - it will find the existing lecturer
+        Module module1 = TestHelper.createModule(moduleRepository, lecturerRepository, departmentRepository, userRepository, adminRepository, "CS100", "Data Structure", 50, "lecturer2", "Mathematics", "admin123");
+        Module module2 = TestHelper.createModule(moduleRepository, lecturerRepository, departmentRepository, userRepository, adminRepository, "CS101", "Linear Algebra", 50, "lecturer2", "Mathematics", "admin123");
+
+        // Clear persistence context and reload to get fresh @OneToMany relationship
+        
+        lecturer1 = lecturerRepository.findById(lecturer1.getId());
+        
+        // Now @OneToMany will automatically query and populate the list
+        List<Module> teachingModules = lecturer1.getTeachingModules();
+        
+        assert teachingModules != null : "Teaching modules should not be null";
+        assert teachingModules.size() == 2 : "Expected 2 modules, found: " + teachingModules.size();
+    }
+
 }

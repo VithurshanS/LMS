@@ -1,8 +1,19 @@
 package org.lms.Model;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name="lecturer")
@@ -17,12 +28,12 @@ public class Lecturer {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(cascade=CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "department_id")
     private Department department;
 
-    @OneToMany(mappedBy="lecturer")
-    private List<Module> teachingModules;
+    @OneToMany(mappedBy = "lecturer", cascade = CascadeType.ALL)
+    private List<Module> teachingModules = new ArrayList<>();
 
     
     public Lecturer (){}

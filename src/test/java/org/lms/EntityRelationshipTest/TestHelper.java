@@ -3,9 +3,9 @@ package org.lms.EntityRelationshipTest;
 import org.lms.Model.Admin;
 import org.lms.Model.Department;
 import org.lms.Model.Enrollment;
+import org.lms.Model.Lecturer;
 import org.lms.Model.Module;
 import org.lms.Model.Student;
-import org.lms.Model.Lecturer;
 import org.lms.Model.User;
 import org.lms.Model.UserRole;
 import org.lms.Repository.AdminRepository;
@@ -21,7 +21,7 @@ public class TestHelper {
             User user = new User(username, email, UserRole.ADMIN, username, "password");
             userRepository.persist(user);
             userRepository.flush();
-            return user;
+            return userRepository.find("username", username).firstResult(); // Return with generated ID
         }
         return existingUser;
     }
@@ -31,7 +31,7 @@ public class TestHelper {
             User user = new User(username, email, UserRole.LECTURER, username, "password");
             userRepository.persist(user);
             userRepository.flush();
-            return user;
+            return userRepository.find("username", username).firstResult(); // Return with generated ID
         }
         return existingUser;
     }
@@ -41,7 +41,7 @@ public class TestHelper {
             User user = new User(username, email, UserRole.STUDENT, username, "password");
             userRepository.persist(user);
             userRepository.flush();
-            return user;
+            return userRepository.find("username", username).firstResult(); // Return with generated ID
         }
         return existingUser;
     }
@@ -51,7 +51,7 @@ public class TestHelper {
             Department department = new Department(deptName);
             departmentRepository.persist(department);
             departmentRepository.flush();
-            return department;
+            return departmentRepository.find("name", deptName).firstResult(); // Return with generated ID
         }
         return existingDept;
     }
@@ -63,7 +63,7 @@ public class TestHelper {
             Lecturer lecturer = new Lecturer(user, department);
             lecturerRepository.persist(lecturer);
             lecturerRepository.flush();
-            return lecturer;
+            return lecturerRepository.find("user.username", username).firstResult(); // Return with generated ID
         }
         return existingLecturer;
     }
@@ -76,7 +76,7 @@ public class TestHelper {
             Student student = new Student(user, department);
             studentRepository.persist(student);
             studentRepository.flush();
-            return student;
+            return studentRepository.find("user.username", username).firstResult(); // Return with generated ID
         }
         return existingStudent;
     }
@@ -88,13 +88,14 @@ public class TestHelper {
             Admin admin = new Admin(user);
             adminRepository.persist(admin);
             adminRepository.flush();
-            return admin;
+            return adminRepository.find("user.username", username).firstResult(); // Return with generated ID
         }
         return existingAdmin;
     }
 
     public static Module createModule(ModuleRepository moduleRepository, LecturerRepository lecturerRepository, DepartmentRepository departmentRepository, UserRepository userRepository, AdminRepository adminRepository, String moduleCode, String moduleName, int enrollmentLimit, String lecturerUsername, String deptName, String adminUsername) {
         Lecturer lecturer = createLecturer(lecturerRepository, userRepository, departmentRepository, lecturerUsername, deptName);
+        
         Department department = createDepartment(departmentRepository, deptName);
         Admin admin = createAdmin(adminRepository, userRepository, adminUsername);
 
@@ -103,7 +104,9 @@ public class TestHelper {
             Module module = new Module(moduleCode, moduleName, enrollmentLimit, department, lecturer, admin);
             moduleRepository.persist(module);
             moduleRepository.flush();
-            return module;
+            lecturerRepository.getEntityManager().clear();
+            return moduleRepository.find("module_code", moduleCode).firstResult();
+
         }
         return existingModule;
     }
@@ -117,7 +120,7 @@ public class TestHelper {
             Enrollment enrollment = new Enrollment(student, module);
             enrollmentRepository.persist(enrollment);
             enrollmentRepository.flush();
-            return enrollment;
+            return enrollmentRepository.find("module.id = ?1 and student.id = ?2", module.getId(), student.getId()).firstResult(); // Return with generated ID
         }
         return existingEnrollment;
     }
