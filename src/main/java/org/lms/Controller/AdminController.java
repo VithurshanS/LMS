@@ -3,6 +3,7 @@ package org.lms.Controller;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.MediaType;
@@ -21,4 +22,8 @@ public class AdminController {
     public Response approve(ApproveRequest request){
         return userService.approveLecturer(request.userId);
     }
+
+//    @GET
+//    @Path("/get-lecturers")
+//    public Response getLecturers(){return }
 }

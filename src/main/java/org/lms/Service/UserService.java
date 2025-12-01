@@ -16,6 +16,7 @@ import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.lms.Dto.LoginRequest;
 import org.lms.Dto.RegistrationRequest;
+import org.lms.Repository.LecturerRepository;
 import org.lms.User.User;
 import org.lms.Model.UserDB;
 import org.lms.Model.UserIAM;
@@ -27,6 +28,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Collections;
+import java.util.UUID;
 
 @ApplicationScoped
 public class UserService {
@@ -41,6 +43,12 @@ public class UserService {
 
     @Inject
     UserRepository userRepo;
+
+    @Inject
+    LecturerService lecturerService;
+
+    @Inject
+    StudentService studentService;
 
     @Inject
     Keycloak keycloak;
@@ -77,14 +85,22 @@ public class UserService {
         }
     }
 
-    public void saveUserInDB(UserDB newuser) {
+    public void saveUserInDB(UUID userId, UserRole role) {
         try {
-            userRepo.persist(newuser);
+            if(role == UserRole.LECTURER){
+                lecturerService.createLecturer(userId,null);
+            } else {
+                studentService.createStudent(userId,null);
+
+            }
+
         } catch (Exception e) {
             throw new RuntimeException("Failed to save user in local database: " + e.getMessage(), e);
         }
     }
 
+
+    @Transactional
     public Response registerUser(RegistrationRequest userDto,String realm) {
 
         if (!validRole(userDto.role)) {
@@ -103,6 +119,7 @@ public class UserService {
 
                 if (roleAssigned) {
                     try {
+                        saveUserInDB(UUID.fromString(userId),UserDB.matchRole(userDto.role));
                         return Response.status(201).entity("User registered successfully").build();
 
                     }catch (Exception e){
@@ -161,11 +178,10 @@ public class UserService {
     public Response approveLecturer(String userId){
         UsersResource ur = keycloak.realm("ironone").users();
         try{
-            // This line WILL FAIL if userId is "shan"
             UserRepresentation user = ur.get(userId).toRepresentation();
 
             user.setEnabled(true);
-            user.setEmailVerified(true); // Mark email as verified so they don't get prompted
+            user.setEmailVerified(true);
 
             ur.get(userId).update(user);
             return Response.ok("lecturer approved").build();

@@ -14,7 +14,7 @@ public class Student {
     private UUID id;
 
     @Column(name = "user_id", nullable = false)
-    private String userId;
+    private UUID userId;
 
 
 
@@ -27,13 +27,13 @@ public class Student {
 
     public Student() {}
 
-    public Student(String userId, Department department) {
+    public Student(UUID userId, Department department) {
         this.userId = userId;
         this.department = department;
     }
 
     public void setUserId(String userId) {
-        this.userId = userId;
+        this.userId = UUID.fromString(userId);
     }
 
     public void setDepartment(Department department) {
@@ -52,13 +52,11 @@ public class Student {
         return id;
     }
 
-    public String getUserId() {
+    public UUID getUserId() {
         return userId;
     }
 
-    public String getStudentUserName(){
-        return userId; // Now returns the userId directly
-    }
+
 
     public Department getDepartment() {
         return department;

@@ -46,8 +46,8 @@ public class Lecturer {
 
     public Lecturer (){}
 
-    public Lecturer(String userId, Department department) {
-        this.userId = UUID.fromString(userId);
+    public Lecturer(UUID userId, Department department) {
+        this.userId = userId;
         this.department = department;
     }
 
