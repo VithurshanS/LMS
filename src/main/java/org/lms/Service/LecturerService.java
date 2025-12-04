@@ -31,16 +31,29 @@ public class LecturerService {
         return lectRepo.findById(lecturerId).getTeachingModules();
     }
 
-    public LecturerDetailDto getLecturerDetails(UUID lecturerId){
-        LecturerDetailDto dto = new LecturerDetailDto();
-        Lecturer lect = lectRepo.findById(lecturerId);
-        UserDetailDto userDetail = userService.fetchUserDetail(lect.getUserId());
-        dto.departmentId = (lect.getDepartment() != null)
+    public UserResponseDto getLecturerDetails(UUID userId){
+        UserResponseDto user = new UserResponseDto();
+        Lecturer lect = lectRepo.findByUserId(userId);
+        user.departmentId = (lect.getDepartment() != null)
                 ? lect.getDepartment().getId()
                 : null;
-        dto.lecturerId = lect.getId();
-        dto.lecturerUserDetail = userDetail;
-        return dto;
+        user.id = lect.getId();
+        UserDetailDto userDetail;
+        try {
+            userDetail = userService.fetchUserDetail(lect.getUserId());
+        } catch (Exception e) {
+            System.out.println("User not found in Keycloak: " + lect.getUserId());
+            return user;
+
+        }
+        user.username = userDetail.userName;
+        user.email = userDetail.email;
+        user.firstName = userDetail.firstName;
+        user.lastName = userDetail.lastName;
+        user.role = userDetail.clientRole.get(0).toUpperCase();
+        user.isActive = userDetail.isActive;
+        return user;
+
 
     }
 
@@ -68,6 +81,19 @@ public class LecturerService {
         return user;
 
 
+    }
+
+    public List<UserResponseDto> getLecturerDetailsbyDepartmentId(UUID departmentId) {
+
+        List<Lecturer> lecturers = lectRepo.findByDepartmentId(departmentId);
+
+        List<UserResponseDto> output = new ArrayList<>();
+        for (Lecturer lecturer : lecturers) {
+            // Reuse the existing logic in getLecturerDetails2 to map Keycloak + DB data
+            UserResponseDto dto = getLecturerDetails2(lecturer.getId());
+            output.add(dto);
+        }
+        return output;
     }
 
     public List<UserResponseDto> getAllLecturers2(){

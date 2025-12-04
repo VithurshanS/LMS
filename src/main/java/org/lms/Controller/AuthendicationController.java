@@ -8,6 +8,7 @@ import jakarta.ws.rs.core.Response;
 import org.lms.Dto.LoginRequestDto;
 import org.lms.Dto.RegistrationRequestDto;
 import org.keycloak.admin.client.Keycloak;
+import org.lms.Service.DepartmentService;
 import org.lms.Service.UserService;
 
 @Path("/auth")
@@ -18,6 +19,9 @@ public class AuthendicationController {
 
     @Inject
     UserService userService;
+
+    @Inject
+    DepartmentService departmentService;
 
     @GET
     @Path("/sample")
@@ -30,6 +34,9 @@ public class AuthendicationController {
     @Path("/register")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response register(RegistrationRequestDto userDto) {
+        if (userDto != null && userDto.role != null) {
+            userDto.role = userDto.role.toLowerCase();
+        }
         return userService.registerUser(userDto,"ironone");
     }
 
@@ -40,4 +47,28 @@ public class AuthendicationController {
     public Response login(LoginRequestDto credentials){
         return userService.loginUser(credentials);
     }
+
+
+    @GET
+    @Path("/getuser")
+    public Response getLoginedUser(){
+        try{
+            return Response.ok(userService.getProfileFromToken()).build();
+        }catch (Exception e){
+            return Response.status(400).entity(e.getMessage()).build();
+        }
+
+    }
+
+    @GET
+    @Path("/get-all-dept") //admin
+    public Response getAllDept(){
+        try{
+            return Response.ok(departmentService.getAllDepartments()).build();
+        } catch (Exception e) {
+            return Response.status(400).entity(e.getMessage()).build();
+        }
+    }
+
+
 }

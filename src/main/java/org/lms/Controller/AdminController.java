@@ -104,6 +104,21 @@ public class AdminController {
     }
 
     @GET
+    @Path("/lecturers-by-dept/{id}") //admin
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllLecturersbyDeptId(@QueryParam("id") UUID deptid) {
+        try {
+            List<UserResponseDto> lecturers = lecturerService.getLecturerDetailsbyDepartmentId(deptid);
+            return Response.ok(lecturers).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(500).entity("Error fetching lecturers: " + e.getMessage()).build();
+        }
+    }
+
+
+
+    @GET
     @Path("/lecturer/{id}") //lecturer +admin
     public Response getLecturerById(@PathParam("id") UUID lecturerId) {
         try {
@@ -123,6 +138,19 @@ public class AdminController {
     public Response getAllStudents() {
         try {
             List<UserResponseDto> students = studentService.getAllStudents2();
+            return Response.ok(students).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(500).entity("Error fetching students: " + e.getMessage()).build();
+        }
+    }
+
+    @GET
+    @Path("/students-by-dept/{id}") //admin
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllStudentssbyDeptId(@QueryParam("id") UUID deptid) {
+        try {
+            List<UserResponseDto> students = studentService.getStudentDetailsbyDepartmentId(deptid);
             return Response.ok(students).build();
         } catch (Exception e) {
             e.printStackTrace();

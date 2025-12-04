@@ -146,24 +146,24 @@ public class ModuleService {
 
 
 
-    public List<StudentDetailDto> getEnrolledStudents(UUID moduleId) {
-        Module module = moduleRepo.findById(moduleId);
-        if (module == null) {
-            throw new NotFoundException("Module not found");
-        }
-
-        List<Enrollment> enrollments = module.getModuleEnrollments();
-
-        if (enrollments == null) {
-            return Collections.emptyList();
-        }
-
-
-        return enrollments.stream()
-                .map(Enrollment::getStudent)
-                .map(student -> studentService.getStudentDetails(student.getId()))
-                .collect(Collectors.toList());
-    }
+//    public List<StudentDetailDto> getEnrolledStudents(UUID moduleId) {
+//        Module module = moduleRepo.findById(moduleId);
+//        if (module == null) {
+//            throw new NotFoundException("Module not found");
+//        }
+//
+//        List<Enrollment> enrollments = module.getModuleEnrollments();
+//
+//        if (enrollments == null) {
+//            return Collections.emptyList();
+//        }
+//
+//
+//        return enrollments.stream()
+//                .map(Enrollment::getStudent)
+//                .map(student -> studentService.getStudentDetails(student.getId()))
+//                .collect(Collectors.toList());
+//    }
 
     public List<Module> getAllModules() {
         return moduleRepo.listAll();

@@ -8,18 +8,16 @@ import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RolesResource;
 import org.keycloak.admin.client.resource.UsersResource;
-//import org.keycloak.representations.JsonWebToken;
+
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
-import org.keycloak.representations.idm.RolesRepresentation;
+
 import org.keycloak.representations.idm.UserRepresentation;
-import org.lms.Dto.LoginRequestDto;
-import org.lms.Dto.LoginResponceDto;
-import org.lms.Dto.RegistrationRequestDto;
-import org.lms.Dto.UserDetailDto;
+import org.lms.Dto.*;
 import org.lms.Model.Department;
 import org.lms.Model.UserRole;
 import org.lms.Repository.DepartmentRepository;
@@ -42,6 +40,9 @@ public class UserService {
 
     @ConfigProperty(name = "quarkus.oidc.credentials.secret")
     String clientSecret;
+
+    @Inject
+    JsonWebToken jwt;
 
 
     @Inject
@@ -76,10 +77,17 @@ public class UserService {
         } else {return UserRole.STUDENT;}
     }
 
-    public UserDetailDto getProfileFromToken(){
-//        String userId = jwt.getSubject();
-        UserDetailDto user = fetchUserDetail(UUID.fromString("132411df-b6a6-4867-946e-cf35fc6b5736"));
-        return user;
+    public UserResponseDto getProfileFromToken(){
+        String userId = jwt.getSubject();
+        UserDetailDto user = fetchUserDetail(UUID.fromString(userId));
+        if (user.clientRole.contains("admin")){
+            return adminService.getAdminDetails(UUID.fromString(userId));
+        } else if (user.clientRole.contains("lecturer")) {
+            return lecturerService.getLecturerDetails(UUID.fromString(userId));
+
+        }else {
+            return studentService.getStudentDetails(UUID.fromString(userId));
+        }
 
     }
 
