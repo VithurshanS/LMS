@@ -1,17 +1,17 @@
 package org.lms.Service;
 
+import java.util.List;
+import java.util.UUID;
+
+import org.lms.Dto.DepartmentDetailDto;
+import org.lms.Model.Department;
+import org.lms.Repository.DepartmentRepository;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import org.lms.Dto.DepartmentDetailDto;
-import org.lms.Dto.ModuleDetailDto;
-import org.lms.Model.Department;
-import org.lms.Repository.DepartmentRepository;
-import org.lms.Repository.ModuleRepository;
-
-import java.util.List;
-import java.util.UUID;
 
 @ApplicationScoped
 public class DepartmentService {
@@ -37,7 +37,16 @@ public class DepartmentService {
                 .map(d -> mapper.convertValue(d, DepartmentDetailDto.class))
                 .toList();
     }
-    public Department getDepartmentById(UUID id) {
+
+    public DepartmentDetailDto getDepartmentById(UUID id) {
+        Department dept = deptRepo.findById(id);
+        if (dept == null) {
+            return null;
+        }
+        return mapper.convertValue(dept, DepartmentDetailDto.class);
+    }
+
+    public Department getDepartmentEntityById(UUID id) {
         return deptRepo.findById(id);
     }
 

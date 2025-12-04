@@ -250,19 +250,7 @@ public class AdminController {
 
     }
 
-    @GET
-    @Path("/studentlist-from-module/{id}") //lecturer +admin +student
-    public Response getStudentsByModuleId(@PathParam("id") UUID moduleId) {
-        try {
-            List<UserResponseDto> dto = studentService.getStudentsByModuleId(moduleId);
-            if (dto == null) {
-                return Response.status(404).entity("Lecturer not found").build();
-            }
-            return Response.ok(dto).build();
-        } catch (Exception e) {
-            return Response.status(500).entity("Error fetching lecturer: " + e.getMessage()).build();
-        }
-    }
+
 
     //#################################################### TEST ##############################################
 

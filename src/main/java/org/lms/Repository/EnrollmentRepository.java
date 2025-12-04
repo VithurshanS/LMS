@@ -20,12 +20,18 @@ public class EnrollmentRepository implements PanacheRepositoryBase<Enrollment, U
 
 
     public List<Module> findModulesByStudentId(UUID studentId) {
-            return find("student.id", studentId).project(Module.class).list();
+        List<Enrollment> enrollments = find("student.id", studentId).list();
+        return enrollments.stream()
+                .map(Enrollment::getModule)
+                .toList();
     }
 
 
     public List<Student> findStudentsByModuleId(UUID moduleId) {
-        return find("module.id", moduleId).project(Student.class).list();
+        List<Enrollment> enrollments = find("module.id", moduleId).list();
+        return enrollments.stream()
+                .map(Enrollment::getStudent)
+                .toList();
     }
 
 

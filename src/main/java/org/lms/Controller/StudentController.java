@@ -11,6 +11,7 @@ import org.lms.Dto.UserResponseDto;
 import org.lms.Model.Enrollment;
 import org.lms.Service.EnrollmentService;
 import org.lms.Service.ModuleService;
+import org.lms.Service.StudentService;
 
 import java.util.List;
 import java.util.UUID;
@@ -28,6 +29,9 @@ public class StudentController {
 
     @Inject
     ModuleService moduleService;
+
+    @Inject
+    StudentService studentService;
 
     @GET
     @Path("/test")
@@ -69,7 +73,19 @@ public class StudentController {
             return Response.status(500).entity("Error fetching lecturer: " + e.getMessage()).build();
         }
     }
-
+    @GET
+    @Path("/students-by-module/{id}") //lecturer +admin +student
+    public Response getStudentsByModuleId(@PathParam("id") UUID moduleId) {
+        try {
+            List<UserResponseDto> dto = studentService.getStudentsByModuleId(moduleId);
+            if (dto == null) {
+                return Response.status(404).entity("students not found").build();
+            }
+            return Response.ok(dto).build();
+        } catch (Exception e) {
+            return Response.status(500).entity("Error fetching students: " + e.getMessage()).build();
+        }
+    }
 
 
 
