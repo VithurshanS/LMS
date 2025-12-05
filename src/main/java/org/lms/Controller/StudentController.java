@@ -2,6 +2,7 @@ package org.lms.Controller;
 
 
 import io.quarkus.security.identity.SecurityIdentity;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -29,6 +30,7 @@ public class StudentController {
     @Inject
     StudentService studentService;
 
+    @RolesAllowed("student")
     @GET
     @Path("/test")
     @Produces(MediaType.TEXT_PLAIN)
@@ -41,24 +43,11 @@ public class StudentController {
 
 
 
-    @POST
-    @Path("/enroll")
-    public Response enrollStudent(EnrollRequest req) {
-        try {
-            Enrollment enr = enrollmentService.enrollStudent(req.studentId, req.moduleId);
-            return Response.status(201).entity(enr).build();
-        } catch (NotFoundException e) {
-            return Response.status(404).entity(e.getMessage()).build();
-        } catch (BadRequestException e) {
-            return Response.status(400).entity(e.getMessage()).build();
-        } catch (Exception e) {
-            return Response.status(500).entity(e.getMessage()).build();
-        }
-    }
 
 
+    @RolesAllowed({"lecturer","admin"})
     @GET
-    @Path("/students-by-module/{id}") //lecturer +admin +student
+    @Path("/moduleId/{id}") //lecturer +admin +student
     public Response getStudentsByModuleId(@PathParam("id") UUID moduleId) {
         try {
             List<UserResponseDto> dto = studentService.getStudentsByModuleId(moduleId);
@@ -70,17 +59,48 @@ public class StudentController {
             return Response.status(500).entity("Error fetching students: " + e.getMessage()).build();
         }
     }
+
+    @RolesAllowed({"admin"})
     @GET
-    @Path("/enrollments/{id}") //lecturer +admin +student
-    public Response getLecturerById(@PathParam("id") UUID studentId) {
+    @Path("/all") //admin + lecturers
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllStudents() {
         try {
-            List<ModuleDetailDto> dto = moduleService.getModulesByStudentId(studentId);
+            List<UserResponseDto> students = studentService.getAllStudents2();
+            return Response.ok(students).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(500).entity("Error fetching students: " + e.getMessage()).build();
+        }
+    }
+    @RolesAllowed("admin")
+    @GET
+    @Path("/departmentId/{id}") //admin
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllStudentssbyDeptId(@PathParam("id") UUID deptid) {
+        try {
+            List<UserResponseDto> students = studentService.getStudentDetailsbyDepartmentId(deptid);
+            return Response.ok(students).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(500).entity("Error fetching students: " + e.getMessage()).build();
+        }
+    }
+
+
+
+    @RolesAllowed({"admin","student","lecturer"})
+    @GET
+    @Path("/id/{id}") //lecturer + admin +student
+    public Response getStudentById(@PathParam("id") UUID studentId) {
+        try {
+            UserResponseDto dto = studentService.getStudentDetails2(studentId);
             if (dto == null) {
-                return Response.status(404).entity("Lecturer not found").build();
+                return Response.status(404).entity("Student not found").build();
             }
             return Response.ok(dto).build();
         } catch (Exception e) {
-            return Response.status(500).entity("Error fetching lecturer: " + e.getMessage()).build();
+            return Response.status(500).entity("Error fetching student: " + e.getMessage()).build();
         }
     }
 
