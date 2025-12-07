@@ -73,7 +73,7 @@ public class StudentController {
             return Response.status(500).entity("Error fetching students: " + e.getMessage()).build();
         }
     }
-    @RolesAllowed("admin")
+    @RolesAllowed({"admin","lecturer"})
     @GET
     @Path("/departmentId/{id}") //admin
     @Produces(MediaType.APPLICATION_JSON)
@@ -86,6 +86,8 @@ public class StudentController {
             return Response.status(500).entity("Error fetching students: " + e.getMessage()).build();
         }
     }
+
+
 
 
 
