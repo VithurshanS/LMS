@@ -2,6 +2,8 @@ package org.lms.Service;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import org.eclipse.microprofile.config.inject.ConfigProperties;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.lms.Dto.MeetingResponse;
 import org.lms.Dto.UserResponseDto;
 import io.jsonwebtoken.Jwts;
@@ -15,10 +17,21 @@ import java.util.UUID;
 
 @ApplicationScoped
 public class MeetingService {
-    private final String JITSI_APP_ID = "mydeploy1";
-    private final String JITSI_APP_SECRET = "wEoG/Y5keRbH4yrjMe7UxWiBzqO8a8VRqY8cVR4oXro=";
-    private final String JITSI_DOMAIN = "jit.shancloudservice.com";
+   // private final String JITSI_APP_ID = "mydeploy1";
+   // private final String JITSI_APP_SECRET = "wEoG/Y5keRbH4yrjMe7UxWiBzqO8a8VRqY8cVR4oXro=";
+    //private final String  = "jit.shancloudservice.com";
 
+    @Inject
+    @ConfigProperty(name = "jitsi_secret")
+    String JITSI_APP_SECRET;
+
+    @Inject
+    @ConfigProperty(name = "jitsi_id")
+    String JITSI_APP_ID;
+
+    @Inject
+    @ConfigProperty(name = "jitsi_domain")
+    String JITSI_DOMAIN;
     @Inject
     UserService userService;
 
