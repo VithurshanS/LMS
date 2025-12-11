@@ -4,10 +4,11 @@ import java.util.List;
 import java.util.UUID;
 
 import org.lms.Dto.DepartmentDetailDto;
+import org.lms.Exceptions.ConflictException;
+import org.lms.Exceptions.NotFoundException;
+import org.lms.Mapper.DepartmentMapper;
 import org.lms.Model.Department;
 import org.lms.Repository.DepartmentRepository;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -20,34 +21,32 @@ public class DepartmentService {
     DepartmentRepository deptRepo;
 
     @Inject
-    ObjectMapper mapper;
+    DepartmentMapper departmentMapper;
 
 
     @Transactional
     public DepartmentDetailDto createDepartment(String name) {
+        if(deptRepo.existByName(name)){
+            throw new ConflictException("department name already exists"+" "+name);
+        }
+
         Department dept = new Department(name);
         deptRepo.persist(dept);
-        return mapper.convertValue(dept,DepartmentDetailDto.class);
+        return departmentMapper.toDto(dept);
     }
 
     public List<DepartmentDetailDto> getAllDepartments() {
         List<Department> deps = deptRepo.listAll();
-
         return deps.stream()
-                .map(d -> mapper.convertValue(d, DepartmentDetailDto.class))
+                .map(departmentMapper::toDto)
                 .toList();
     }
 
     public DepartmentDetailDto getDepartmentById(UUID id) {
         Department dept = deptRepo.findById(id);
         if (dept == null) {
-            return null;
+            throw new NotFoundException("department not exist on this id"+" "+id.toString());
         }
-        return mapper.convertValue(dept, DepartmentDetailDto.class);
+        return departmentMapper.toDto(dept);
     }
-
-    public Department getDepartmentEntityById(UUID id) {
-        return deptRepo.findById(id);
-    }
-
 }

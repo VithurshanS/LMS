@@ -1,10 +1,10 @@
 package org.lms.Service;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
-import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.NotFoundException;
+import java.util.UUID;
+
+import org.lms.Exceptions.BusinessException;
+import org.lms.Exceptions.ConflictException;
+import org.lms.Exceptions.NotFoundException;
 import org.lms.Model.Enrollment;
 import org.lms.Model.Module;
 import org.lms.Model.Student;
@@ -12,7 +12,9 @@ import org.lms.Repository.EnrollmentRepository;
 import org.lms.Repository.ModuleRepository;
 import org.lms.Repository.StudentRepository;
 
-import java.util.UUID;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 @ApplicationScoped
 public class EnrollmentService {
@@ -40,15 +42,15 @@ public class EnrollmentService {
 
         long existingCount = enrollmentRepo.count("student.id = ?1 and module.id = ?2", studentId, moduleId);
         if (existingCount > 0) {
-            throw new BadRequestException("Student is already enrolled in this module.");
+            throw new ConflictException("Student is already enrolled in this module.");
         }
 
         long currentEnrollmentCount = enrollmentRepo.count("module.id = ?1", moduleId);
         if (currentEnrollmentCount >= module.getLimit()) {
-            throw new BadRequestException("Module is full. Enrollment limit reached (" + module.getLimit() + ").");
+            throw new BusinessException("Module is full. Enrollment limit reached (" + module.getLimit() + ").");
         }
         if(student.getDepartment()!=null && module.getDepartment().getId() != student.getDepartment().getId()){
-            throw  new BadRequestException("student cant enroll to a different department module");
+            throw  new BusinessException("student cant enroll to a different department module");
         }
         if (student.getDepartment() == null){
             throw new NotFoundException("department not found");

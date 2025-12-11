@@ -10,5 +10,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class DepartmentRepository implements PanacheRepositoryBase<Department, UUID> {
+    public boolean existByName(String name){
+        if(find("name", name).stream().findAny().isPresent()){
+            return true;
+        }
+        return false;
+    }
 
 }

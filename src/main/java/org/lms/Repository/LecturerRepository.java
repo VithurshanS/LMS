@@ -22,4 +22,5 @@ public class LecturerRepository implements PanacheRepositoryBase<Lecturer, UUID>
 
 
 
+
 }

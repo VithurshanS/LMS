@@ -1,20 +1,24 @@
 package org.lms.Service;
 
+import java.util.List;
+import java.util.UUID;
+
+import org.lms.Dto.ModuleDetailDto;
+import org.lms.Exceptions.NotFoundException;
+import org.lms.Mapper.ModuleMapper;
+import org.lms.Model.Admin;
+import org.lms.Model.Department;
+import org.lms.Model.Lecturer;
+import org.lms.Model.Module;
+import org.lms.Repository.AdminRepository;
+import org.lms.Repository.DepartmentRepository;
+import org.lms.Repository.EnrollmentRepository;
+import org.lms.Repository.LecturerRepository;
+import org.lms.Repository.ModuleRepository;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.NotFoundException;
-import org.lms.Dto.AdminDetailDto;
-import org.lms.Dto.ModuleDetailDto;
-import org.lms.Dto.StudentDetailDto;
-import org.lms.Model.*;
-import org.lms.Model.Module;
-import org.lms.Repository.*;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class ModuleService {
@@ -44,61 +48,38 @@ public class ModuleService {
     LecturerService lecturerService;
 
     @Inject
-    ModuleService moduleService;
+    ModuleMapper moduleMapper;
 
     //Get
 
     @Transactional
     public ModuleDetailDto getModule(UUID moduleId) {
-
         Module mod = moduleRepo.findById(moduleId);
         if (mod == null) {
             throw new NotFoundException("Module not found for ID: " + moduleId);
         }
-
-        ModuleDetailDto dto = new ModuleDetailDto();
-
-        dto.moduleId = mod.getId();
-        dto.moduleCode = mod.getModule_code();
-        dto.name = mod.getName();
-        dto.enrollmentLimit = mod.getLimit();
-        dto.departmentId = (mod.getDepartment() != null)
-                ? mod.getDepartment().getId()
-                : null;
-
-        dto.lecturerId = (mod.getLecturer() != null)
-                ? mod.getLecturer().getId()
-                : null;
-
-        dto.adminId = (mod.getCreatedby() != null)
-                ? mod.getCreatedby().getId()
-                : null;
-        dto.enrolledCount = enrollmentRepository.countByModuleId(mod.getId());
-
-        return dto;
+        return moduleMapper.toDto(mod);
     }
 
 
     public List<ModuleDetailDto> getModulesByDeptId(UUID deptId){
         List<Module> modules = moduleRepo.findByDepartmentId(deptId);
-
         return modules.stream()
-                .map(m -> getModule(m.getId()))
+                .map(moduleMapper::toDto)
                 .toList();
     }
 
     public List<ModuleDetailDto> getModulesByLectId(UUID lectId){
         List<Module> modules = moduleRepo.findByLecturerId(lectId);
-
         return modules.stream()
-                .map(m -> getModule(m.getId()))
+                .map(moduleMapper::toDto)
                 .toList();
     }
 
     public List<ModuleDetailDto> getModulesByStudentId(UUID studentId){
         List<Module> modules = enrollmentRepository.findModulesByStudentId(studentId);
         return modules.stream()
-                .map(m -> getModule(m.getId()))
+                .map(moduleMapper::toDto)
                 .toList();
     }
 
@@ -125,8 +106,7 @@ public class ModuleService {
         module.setCreatedby(admin);
 
         moduleRepo.persist(module);
-        ModuleDetailDto modd = getModule(module.getId());
-        return modd;
+        return moduleMapper.toDto(module);
     }
 
     //patch

@@ -1,19 +1,21 @@
 package org.lms.Service;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
-import org.lms.Dto.LecturerDetailDto;
-import org.lms.Dto.UserDetailDto;
-import org.lms.Dto.UserResponseDto;
-import org.lms.Model.Department;
-import org.lms.Model.Lecturer;
-import org.lms.Model.Module;
-import org.lms.Repository.LecturerRepository;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import org.lms.Dto.UserDetailDto;
+import org.lms.Dto.UserResponseDto;
+import org.lms.Exceptions.ConflictException;
+import org.lms.Exceptions.NotFoundException;
+import org.lms.Mapper.UserMapper;
+import org.lms.Model.Department;
+import org.lms.Model.Lecturer;
+import org.lms.Repository.LecturerRepository;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 @ApplicationScoped
 public class LecturerService {
@@ -23,75 +25,46 @@ public class LecturerService {
     @Inject
     UserService userService;
 
+    @Inject
+    UserMapper userMapper;
+
     @Transactional
     public void createLecturer(UUID userId, Department dept){
+        if(lectRepo.findByUserId(userId) != null){
+            throw new ConflictException("user already exists as lecturer");
+        }
         Lecturer lecturer = new Lecturer(userId, dept);
         lectRepo.persist(lecturer);
     }
 
-    public List<Module> getAssignedModules(UUID lecturerId){
-        return lectRepo.findById(lecturerId).getTeachingModules();
-    }
 
     public UserResponseDto getLecturerDetails(UUID userId){
-        UserResponseDto user = new UserResponseDto();
         Lecturer lect = lectRepo.findByUserId(userId);
-        user.departmentId = (lect.getDepartment() != null)
-                ? lect.getDepartment().getId()
-                : null;
-        user.id = lect.getId();
-        UserDetailDto userDetail;
-        try {
-            userDetail = userService.fetchUserDetail(lect.getUserId());
-        } catch (Exception e) {
-            System.out.println("User not found in Keycloak: " + lect.getUserId());
-            return user;
-
+        if(lect==null){
+            throw new NotFoundException("no lecturer found on that user id");
         }
-        user.username = userDetail.userName;
-        user.email = userDetail.email;
-        user.firstName = userDetail.firstName;
-        user.lastName = userDetail.lastName;
-        user.role = userDetail.clientRole.get(0).toUpperCase();
-        user.isActive = userDetail.isActive;
-        return user;
-
-
+        if(lect.getDepartment()==null){
+            throw new NotFoundException("this lecturer doesnt belongs to any department");
+        }
+        UserDetailDto userDetail = userService.fetchUserDetail(lect.getUserId());
+        return userMapper.toUserResponseDto(lect, userDetail);
     }
 
     public UserResponseDto getLecturerDetails2(UUID lecturerId){
-        UserResponseDto user = new UserResponseDto();
         Lecturer lect = lectRepo.findById(lecturerId);
-        user.departmentId = (lect.getDepartment() != null)
-                ? lect.getDepartment().getId()
-                : null;
-        user.id = lect.getId();
-        UserDetailDto userDetail;
-        try {
-            userDetail = userService.fetchUserDetail(lect.getUserId());
-        } catch (Exception e) {
-            System.out.println("User not found in Keycloak: " + lect.getUserId());
-            return user;
-
+        if(lect==null){
+            throw new NotFoundException("no lecturer found on that user id");
         }
-        user.username = userDetail.userName;
-        user.email = userDetail.email;
-        user.firstName = userDetail.firstName;
-        user.lastName = userDetail.lastName;
-        user.role = userDetail.clientRole.get(0).toUpperCase();
-        user.isActive = userDetail.isActive;
-        return user;
-
-
+        if(lect.getDepartment()==null){
+            throw new NotFoundException("this lecturer doesnt belongs to any department");
+        }
+        UserDetailDto userDetail = userService.fetchUserDetail(lect.getUserId());
+        return userMapper.toUserResponseDto(lect, userDetail);
     }
 
     public List<UserResponseDto> getLecturerDetailsbyDepartmentId(UUID departmentId) {
 
         List<Lecturer> lecturers = lectRepo.findByDepartmentId(departmentId);
-//        if(lecturers.size()==0){
-//            throw new RuntimeException("you repo problem");
-//        }
-
         List<UserResponseDto> output = new ArrayList<>();
         for (Lecturer lecturer : lecturers) {
             UserResponseDto dto = getLecturerDetails2(lecturer.getId());
@@ -101,43 +74,11 @@ public class LecturerService {
     }
 
 
-    public void patchLecturer(UserResponseDto update){
-        try{
-            String userId = userService.userIdfromToken();
-            userService.patchUser(userId,update);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public List<UserResponseDto> getAllLecturers2(){
         List<Lecturer> lecturers = lectRepo.listAll();
-        List<UserResponseDto> output = new ArrayList<>();
-        for (Lecturer i : lecturers) {
-            UserResponseDto dto = new UserResponseDto();
-            dto = getLecturerDetails2(i.getId());
-            output.add(dto);
-        }
-        return output;
-    }
-
-    public List<LecturerDetailDto> getAllLecturers() {
-        List<Lecturer> lecturers = lectRepo.listAll();
-        List<LecturerDetailDto> output = new ArrayList<>();
-        for (Lecturer i : lecturers) {
-            LecturerDetailDto dto = new LecturerDetailDto();
-            dto.lecturerId = i.getId();
-            dto.departmentId = (i.getDepartment() != null)
-                    ? i.getDepartment().getId()
-                    : null;
-            try {
-                dto.lecturerUserDetail = userService.fetchUserDetail(i.getUserId());
-            } catch (Exception e) {
-                System.out.println("User not found in Keycloak: " + i.getUserId());
-                dto.lecturerUserDetail = null;
-            }
-            output.add(dto);
-        }
-        return output;
+        return lecturers.stream()
+                .map(l -> getLecturerDetails2(l.getId()))
+                .toList();
     }
 }

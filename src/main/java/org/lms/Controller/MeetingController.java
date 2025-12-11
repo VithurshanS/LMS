@@ -19,13 +19,8 @@ public class MeetingController {
 
     @RolesAllowed({"lecturer","student"})
     @GET
-    @Path("/create/{id}")
-    public Response createmeeting(@PathParam("id") UUID moduleId){
-        try {
+    public Response createmeeting(@QueryParam("moduleId") UUID moduleId){
             return Response.ok(meetingService.createMeeting(moduleId)).build();
-        } catch (Exception e) {
-            return Response.status(400).entity(e.toString()).build();
-        }
 
 
     }

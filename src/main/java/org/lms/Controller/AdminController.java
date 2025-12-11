@@ -2,12 +2,14 @@ package org.lms.Controller;
 
 
 import jakarta.annotation.security.RolesAllowed;
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
 
 
-@Path("/api/admin")
+@Path("/api/admins")
 public class AdminController {
 
 
@@ -22,7 +24,4 @@ public class AdminController {
 
 
 
-//    @GET
-//    @Path("/get-lecturers")
-//    public Response getLecturers(){return }
 }

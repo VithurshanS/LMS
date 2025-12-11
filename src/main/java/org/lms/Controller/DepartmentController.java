@@ -1,17 +1,23 @@
 package org.lms.Controller;
 
-import jakarta.annotation.security.PermitAll;
-import jakarta.annotation.security.RolesAllowed;
-import jakarta.inject.Inject;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+import java.util.UUID;
+
 import org.lms.Dto.DeptCreateRequest;
 import org.lms.Service.DepartmentService;
 
-import java.util.UUID;
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.inject.Inject;
+import jakarta.validation.Valid;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
-@Path("/api/department")
+@Path("/api/departments")
 public class DepartmentController {
 
     @Inject
@@ -20,39 +26,26 @@ public class DepartmentController {
 
     @RolesAllowed("admin")
     @POST
-    @Path("/create") //admin
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createDept(DeptCreateRequest req){
-        try{
-
-            return Response.status(201).entity(departmentService.createDepartment(req.name)).build();
-
-        }catch (Exception e){
-            return Response.status(400).entity(e.getMessage()).build();
-        }
-
+    public Response createDept(@Valid DeptCreateRequest req) {
+        return Response.status(201).entity(departmentService.createDepartment(req.name)).build();
     }
 
     @PermitAll
     @GET
-    @Path("/all") //admin
     public Response getAllDept(){
-        try{
-            return Response.ok(departmentService.getAllDepartments()).build();
-        } catch (Exception e) {
-            return Response.status(400).entity(e.getMessage()).build();
-        }
+
+        return Response.ok(departmentService.getAllDepartments()).build();
+
     }
 
 
     @RolesAllowed({"admin","student","lecturer"})
     @GET
-    @Path("/id/{id}")
+    @Path("/{id}")
     public Response getDepartmentbyId(@PathParam("id") UUID departmentId){
-        try{
-            return Response.ok(departmentService.getDepartmentById(departmentId)).build();
-        }catch (Exception e){
-            return Response.status(400).entity(e.getMessage()).build();
-        }
+
+        return Response.ok(departmentService.getDepartmentById(departmentId)).build();
+
     }
 }

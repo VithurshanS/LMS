@@ -1,19 +1,22 @@
 package org.lms.Service;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import org.lms.Dto.StudentDetailDto;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 import org.lms.Dto.UserDetailDto;
 import org.lms.Dto.UserResponseDto;
+import org.lms.Exceptions.ConflictException;
+import org.lms.Exceptions.NotFoundException;
+import org.lms.Mapper.UserMapper;
 import org.lms.Model.Department;
-import org.lms.Model.Enrollment;
 import org.lms.Model.Student;
 import org.lms.Repository.EnrollmentRepository;
 import org.lms.Repository.StudentRepository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 
 @ApplicationScoped
 public class StudentService {
@@ -26,73 +29,44 @@ public class StudentService {
     @Inject
     EnrollmentRepository enrollmentRepository;
 
+    @Inject
+    UserMapper userMapper;
+
+    @Transactional
     public void createStudent(UUID userId, Department dept){
+        if(studRepo.findByUserId(userId) != null){
+            throw new ConflictException("User already exists as student");
+        }
         Student student = new Student(userId, dept);
         studRepo.persist(student);
     }
 
 
     public UserResponseDto getStudentDetails(UUID userId){
-        UserResponseDto user = new UserResponseDto();
-        Student lect = studRepo.findByUserId(userId);
-        user.departmentId = (lect.getDepartment() != null)
-                ? lect.getDepartment().getId()
-                : null;
-        user.id = lect.getId();
-        UserDetailDto userDetail;
-        try {
-            userDetail = userService.fetchUserDetail(lect.getUserId());
-        } catch (Exception e) {
-            System.out.println("User not found in Keycloak: " + lect.getUserId());
-            return user;
-
+        Student student = studRepo.findByUserId(userId);
+        if(student == null){
+            throw new NotFoundException("No student found with that user id");
         }
-        user.username = userDetail.userName;
-        user.email = userDetail.email;
-        user.firstName = userDetail.firstName;
-        user.lastName = userDetail.lastName;
-        user.role = userDetail.clientRole.get(0).toUpperCase();
-        user.isActive = userDetail.isActive;
-        return user;
-
-
-    }
-
-    public void patchStudent(UserResponseDto update){
-        try{
-            String userId = userService.userIdfromToken();
-            userService.patchUser(userId,update);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        if(student.getDepartment() == null){
+            throw new NotFoundException("This student doesn't belong to any department");
         }
+        UserDetailDto userDetail = userService.fetchUserDetail(student.getUserId());
+        return userMapper.toUserResponseDto(student, userDetail);
     }
+    
 
 
 
     public UserResponseDto getStudentDetails2(UUID studentId){
-        UserResponseDto user = new UserResponseDto();
-        Student lect = studRepo.findById(studentId);
-        user.departmentId = (lect.getDepartment() != null)
-                ? lect.getDepartment().getId()
-                : null;
-        user.id = lect.getId();
-        UserDetailDto userDetail;
-        try {
-            userDetail = userService.fetchUserDetail(lect.getUserId());
-        } catch (Exception e) {
-            System.out.println("User not found in Keycloak: " + lect.getUserId());
-            return user;
-
+        Student student = studRepo.findById(studentId);
+        if(student == null){
+            throw new NotFoundException("No student found with that id");
         }
-        user.username = userDetail.userName;
-        user.email = userDetail.email;
-        user.firstName = userDetail.firstName;
-        user.lastName = userDetail.lastName;
-        user.role = userDetail.clientRole.get(0).toUpperCase();
-        user.isActive = userDetail.isActive;
-        return user;
-
-
+        if(student.getDepartment() == null){
+            throw new NotFoundException("This student doesn't belong to any department");
+        }
+        UserDetailDto userDetail = userService.fetchUserDetail(student.getUserId());
+        return userMapper.toUserResponseDto(student, userDetail);
     }
     public List<UserResponseDto> getStudentDetailsbyDepartmentId(UUID departmentId) {
 
@@ -115,13 +89,9 @@ public class StudentService {
 
 
     public List<UserResponseDto> getAllStudents2(){
-        List<Student> lecturers = studRepo.listAll();
-        List<UserResponseDto> output = new ArrayList<>();
-        for (Student i : lecturers) {
-            UserResponseDto dto = new UserResponseDto();
-            dto = getStudentDetails2(i.getId());
-            output.add(dto);
-        }
-        return output;
+        List<Student> students = studRepo.listAll();
+        return students.stream()
+                .map(s -> getStudentDetails2(s.getId()))
+                .toList();
     }
 }
